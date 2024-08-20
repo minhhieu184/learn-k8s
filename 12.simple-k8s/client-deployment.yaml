@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: redis:7.2-alpine
+          image: complex-be:1
           # imagePullPolicy: Never
           ports:
             # Chỉ để tài liệu hóa cấu hình của pod, các container trong pod vẫn
