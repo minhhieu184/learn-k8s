@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-pod
+  labels:
+    component: web
+spec:
+  containers:
+    - name: client
+      image: redis:7.2-alpine
+      # imagePullPolicy: Never
+      ports:
+        # Chỉ để tài liệu hóa cấu hình của pod, các container trong pod vẫn
+        # có thể giao tiếp với nhau mà không cần cấu hình này
+        - containerPort: 3000

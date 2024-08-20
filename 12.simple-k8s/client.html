@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <button onclick="spawn()">Spawn</button>
+    <br />
+    <button onclick="del()">Delete</button>
+    <br />
+    <button onclick="getState()">Get State</button>
+    <br />
+    <button onclick="collect()">Currency collect</button>
+    <br />
+    <button onclick="gen()">Gen</button>
+    <br />
+    <button onclick="genAndSpawn()">Gen + Spawn</button>
+    <br />
+    <button onclick="marketList()">Market List</button>
+    <br />
+    <input type="number" id="level" />
+    <button onclick="marketBuy()">Market Buy</button>
+    <br />
+    <input type="number" id="boost" />
+    <button onclick="boost()">Boost</button>
+    <br />
+    <button onclick="test()">Test</button>
+    <br />
+    <input type="number" id="room" value="1" />
+    <button onclick="joinRoom()">JoinRoom</button>
+    <br />
+    <button onclick="emitToRoom2()">EmitToRoom2</button>
+    <br />
+    <button onclick="rankHighestLevel()">RankHighestLevel</button>
+  </head>
+  <body>
+    123
+  </body>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <!-- <script src="//cdn.jsdelivr.net/npm/protobufjs@7.3.2/dist/protobuf.min.js"></script> -->
+  <script>
+    const ps = [3000, 3001]
+    const p = ps[Math.floor(Math.random() * ps.length)]
+    const socket = io('http://localhost:3000', {
+      // const socket = io('https://purrate-king-api-test.miraistudio.games', {
+      transports: ['websocket'],
+      auth: {
+        accessToken:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImYwMTJkZDRiLTE0OTctNDMxMi05MzQxLTM2OTI3MWRmNWYxMSIsInRlbGVncmFtSWQiOiIyMTIzMjMyMzQxMjIiLCJpYXQiOjE3MjMyMTc0NDcsImV4cCI6MTcyMzIyNDY0N30.0gANTLMiNJt5aXADJbNvxbvpcrrHb4Jessl0pc_uUR8',
+        // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg1NmRjMTg2LTBhYWMtNDdjYy1hNmZiLTIxMjVhNzMzN2E2NiIsInRlbGVncmFtSWQiOiIyMTI0MzM3NzMzNTM1NjM1NTAwMDAiLCJpYXQiOjE3MjIyNDY2MTksImV4cCI6MTcyMjI1MzgxOX0.dOmcnbmTNHdfC8ylk9q1KUEvGOJyeyFfFRmp3cf3TZE',
+      },
+    })
+    socket.on('connect', async () => {
+      console.log('Connected to server', 3000)
+
+      // const root = await window.protobuf.load('awesome.proto');
+      // // Obtain a message type
+      // const AwesomeMessage = root.lookupType('awesomepackage.AwesomeMessage');
+
+      // socket.on('client-test-message', async (message) => {
+      //   // Decode an Uint8Array (browser) or Buffer (node) to a message
+      //   const messageDecoded = AwesomeMessage.decode(new Uint8Array(message));
+      //   console.log('socket.on ~ messageDecoded:', messageDecoded);
+      // });
+
+      // // Exemplary payload
+      // const payload = { awesomeField: 8888 };
+
+      // // Verify the payload if necessary (i.e. when possibly incomplete or invalid)
+      // const errMsg = AwesomeMessage.verify(payload);
+      // if (errMsg) throw Error(errMsg);
+
+      // // Create a new message
+      // const message = AwesomeMessage.create(payload); // or use .fromObject if conversion is necessary
+
+      // // Encode a message to an Uint8Array (browser) or Buffer (node)
+      // const buffer = AwesomeMessage.encode(message).finish();
+      // // ... do something with buffer
+
+      // socket.emit('server-test-message', buffer);
+
+      ////
+
+      // socket.emit(
+      //   'game/merge',
+      //   {
+      //     from: '0:0',
+      //     to: '0:1',
+      //   },
+      //   (res) => {
+      //     console.log('socket.emit ~ res:', res);
+      //   },
+      // );
+    })
+    socket.on('disconnect', (reason) => {
+      console.log('socket.on ~ disconnect:', reason)
+    })
+    socket.on('security', (reason) => {
+      console.log('socket.on ~ security:', reason)
+    })
+
+    socket.on('exception', (error) => {
+      console.log('socket.on ~ error:', error)
+    })
+    socket.on('spawn', (mes) => {
+      console.log('socket.on ~ spawn/B:', mes)
+    })
+    socket.on('grid/delete', (mes) => {
+      console.log('socket.on ~ delete:', mes)
+    })
+    socket.on('state/get', (mes) => {
+      console.log('socket.on ~ state/get:', mes)
+    })
+    socket.on('grid/generate', (mes) => {
+      console.log('socket.on ~ grid/generate:', mes)
+    })
+    socket.on('market/list', (mes) => {
+      console.log('socket.on ~ market/list:', mes)
+    })
+    socket.on('market/buy', (mes) => {
+      console.log('socket.on ~ market/buy:', mes)
+    })
+    socket.on('boost', (mes) => {
+      console.log('socket.on ~ boost:', mes)
+    })
+    socket.on('roomMsg', (mes) => {
+      console.log('socket.on ~ roomMsg:', mes)
+    })
+    socket.on('currency/collect', (mes) => {
+      console.log('socket.on ~ currency/collect:', mes)
+    })
+    socket.on('ranking/list', (mes) => {
+      console.log('socket.on ~ ranking/list:', mes)
+    })
+
+    function spawn() {
+      socket.emit('spawn', { type: 'B' }, (res) => {
+        console.log('socket.emit ~ res:', res)
+      })
+    }
+
+    function del() {
+      socket.emit('grid/delete', { target: 1 }, (res) => {
+        console.log('socket.emit ~ res:', res)
+      })
+    }
+    function getState() {
+      socket.emit('state/get', { target: 1 }, (res) => {
+        console.log('socket.emit ~ res:', res)
+      })
+    }
+    function gen() {
+      socket.emit('grid/generate', { target: 1 }, (res) => {
+        console.log('socket.emit ~ res:', res)
+      })
+    }
+    function genAndSpawn() {
+      gen()
+      spawn()
+    }
+    function marketList() {
+      socket.emit('market/list', { target: 1 }, (res) => {
+        console.log('socket.emit ~ res:', res)
+      })
+    }
+    function marketBuy() {
+      const level = Number(document.getElementById('level').value)
+      socket.emit('market/buy', { level }, (res) => {
+        console.log('socket.emit ~ res:', res)
+      })
+    }
+    function boost() {
+      const boostId = Number(document.getElementById('boost').value)
+      socket.emit('boost', { boostId }, (res) => {
+        console.log('socket.emit ~ res:', res)
+      })
+    }
+    function collect() {
+      socket.emit('currency/collect')
+    }
+    function test() {
+      console.log('emit1')
+      socket.emit('test', { data: 1 })
+      console.log('emit2')
+      socket.emit('test', { data: 2 })
+    }
+    function emitToRoom2() {
+      console.log('emitToRoom2')
+      socket.emit('emitToRoom2')
+    }
+    function joinRoom() {
+      const room = Number(document.getElementById('room').value)
+      socket.emit('room/join', { room }, (res) => {
+        console.log('socket.emit ~ res:', res)
+      })
+    }
+    function rankHighestLevel() {
+      socket.emit('ranking/list', { type: 'highest_fish_level', tier: 'Silver' })
+    }
+  </script>
+</html>

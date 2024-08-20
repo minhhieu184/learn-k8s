@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: web
+  template:
+    metadata:
+      labels:
+        component: web
+    spec:
+      containers:
+        - name: client
+          image: redis:7.2-alpine
+          # imagePullPolicy: Never
+          ports:
+            # Chỉ để tài liệu hóa cấu hình của pod, các container trong pod vẫn
+            # có thể giao tiếp với nhau mà không cần cấu hình này
+            - containerPort: 9999
