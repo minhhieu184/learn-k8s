@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: client-deployment
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       component: web
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: complex-be:1
+          image: complex-be
           # imagePullPolicy: Never
           ports:
             # Chỉ để tài liệu hóa cấu hình của pod, các container trong pod vẫn

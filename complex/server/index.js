@@ -9,6 +9,9 @@ const app = express()
 app.use(cors())
 app.use(bodyParser.json())
 
+const random = Math.floor(Math.random() * 10)
+console.log('random:', random)
+
 // /** Postgres Client Setup  */
 // const { Pool } = require('pg')
 // const pgClient = new Pool({
@@ -34,7 +37,8 @@ app.use(bodyParser.json())
 /** Express route handlers  */
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Hi' })
+  console.log('app.get ~ random:', random)
+  res.json({ message: 'Hi', random })
 })
 
 // app.get('/values/all', async (req, res) => {
