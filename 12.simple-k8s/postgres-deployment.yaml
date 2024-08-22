@@ -1,26 +1,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: client-deployment
+  name: postgres-deployment
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      component: web
+      component: db
   template:
     metadata:
       labels:
-        component: web
+        component: db
     spec:
       containers:
-        - name: client
-          image: complex-be
+        - name: postgres
+          image: postgres:15
           # imagePullPolicy: Never
           ports:
             # Chỉ để tài liệu hóa cấu hình của pod, các container trong pod vẫn
             # có thể giao tiếp với nhau mà không cần cấu hình này
             - containerPort: 9999
-
+          env:
+            - name: POSTGRES_DB
+              value: db_name
+            - name: POSTGRES_USER
+              value: db_user
+            - name: POSTGRES_PASSWORD
+              value: db_pass
+          volumeMounts:
+            - name: database-volume
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+      volumes:
+        - name: database-volume
+          persistentVolumeClaim:
+            claimName: database-pvc
 # ---
 # apiVersion: apps/v1
 # kind: Deployment

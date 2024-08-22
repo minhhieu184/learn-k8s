@@ -11,3 +11,17 @@ spec:
       nodePort: 31515
   selector:
     component: web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-node-port
+spec:
+  type: NodePort
+  ports:
+    - port: 3051
+      # targetPort: 6379
+      targetPort: 5432
+      nodePort: 32222
+  selector:
+    component: db

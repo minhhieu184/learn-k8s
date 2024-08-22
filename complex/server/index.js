@@ -10,20 +10,29 @@ app.use(cors())
 app.use(bodyParser.json())
 
 const random = Math.floor(Math.random() * 10)
-console.log('random:', random)
+console.log('random22:', random)
 
-// /** Postgres Client Setup  */
-// const { Pool } = require('pg')
-// const pgClient = new Pool({
-//   user: keys.pgUser,
-//   host: keys.pgHost,
-//   database: keys.pgDatabase,
-//   password: keys.pgPassword,
-//   port: keys.pgPort,
-// })
-// pgClient.on('error', () => console.log('Lost PG connection'))
+/** Postgres Client Setup  */
+const { Pool } = require('pg')
+const pgClient = new Pool({
+  // user: keys.pgUser,
+  // host: keys.pgHost,
+  // database: keys.pgDatabase,
+  // password: keys.pgPassword,
+  // port: keys.pgPort,
+  connectionString: 'postgres://db_user:db_pass@postgres-cluster-ip-service.default.svc.cluster.local:15432/db_name',
+  connectionTimeoutMillis: 10000,
+})
 
-// pgClient.query('CREATE TABLE IF NOT EXISTS values (number INT)').catch((err) => console.log(err))
+pgClient.on('error', () => console.log('Lost PG connection'))
+;(async () => {
+  try {
+    const ss = await pgClient.query('CREATE TABLE IF NOT EXISTS values (number INT)')
+    console.log('ss:', ss)
+  } catch (error) {
+    console.log('; ~ error:', error)
+  }
+})()
 
 // /** Redis Client Setup  */
 // const redis = require('redis')
@@ -41,11 +50,12 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hi', random })
 })
 
-// app.get('/values/all', async (req, res) => {
-//   const values = await pgClient.query('SELECT * from values')
+app.get('/values/all', async (req, res) => {
+  const values = await pgClient.query('SELECT * from values')
+  console.log('app.get ~ values:', values)
 
-//   res.send(values.rows)
-// })
+  res.json({ values: 'all' })
+})
 
 // app.get('/values/current', async (req, res) => {
 //   redisClient.hgetall('values', (err, values) => {
