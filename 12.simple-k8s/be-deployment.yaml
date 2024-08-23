@@ -1,26 +1,49 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: client-deployment
+  name: be-deployment
 spec:
   replicas: 3
   selector:
     matchLabels:
-      component: web
+      component: be
   template:
     metadata:
       labels:
-        component: web
+        component: be
+        test-key: test-label
     spec:
       containers:
         - name: client
           image: complex-be
-          # imagePullPolicy: Never
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: db-config-map
+              prefix: POSTGRES_
+            - configMapRef:
+                name: be-config-map
+            - secretRef:
+                name: db-secret
+              prefix: POSTGRES_
+          env:
+            - name: DATABASE_URL
+              value: postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?schema=public
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 250m
+              memory: 512Mi
           ports:
             # Chỉ để tài liệu hóa cấu hình của pod, các container trong pod vẫn
             # có thể giao tiếp với nhau mà không cần cấu hình này
             - containerPort: 9999
-
+#
+#
+#
+#
 # ---
 # apiVersion: apps/v1
 # kind: Deployment
@@ -90,5 +113,5 @@ spec:
 #       volumes:
 #         - name: localtime
 #           persistentVolumeClaim:
-#             claimName: database-pvc
+#             claimName: db-pvc
 #       restartPolicy: Always

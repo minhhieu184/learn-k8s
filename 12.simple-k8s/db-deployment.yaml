@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres-deployment
+  name: db-deployment
 spec:
   replicas: 1
   selector:
@@ -20,16 +20,20 @@ spec:
             # Chỉ để tài liệu hóa cấu hình của pod, các container trong pod vẫn
             # có thể giao tiếp với nhau mà không cần cấu hình này
             - containerPort: 9999
-          env:
-            - name: POSTGRES_DB
-              value: db_name
-            - name: POSTGRES_USER
-              value: db_user
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  name: secret_name
-                  key: POSTGRES_PASSWORD
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          envFrom:
+            - configMapRef:
+                name: db-config-map
+              prefix: POSTGRES_
+            - secretRef:
+                name: db-secret
+              prefix: POSTGRES_
           volumeMounts:
             - name: database-volume
               mountPath: /var/lib/postgresql/data
@@ -37,7 +41,7 @@ spec:
       volumes:
         - name: database-volume
           persistentVolumeClaim:
-            claimName: database-pvc
+            claimName: db-pvc
 # ---
 # apiVersion: apps/v1
 # kind: Deployment
@@ -107,5 +111,5 @@ spec:
 #       volumes:
 #         - name: localtime
 #           persistentVolumeClaim:
-#             claimName: database-pvc
+#             claimName: db-pvc
 #       restartPolicy: Always

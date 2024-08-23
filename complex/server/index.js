@@ -1,6 +1,7 @@
-const keys = require('./keys')
-
 /** Express App Setup  */
+const { PrismaClient } = require('@prisma/client')
+
+const keys = require('./keys')
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -9,30 +10,16 @@ const app = express()
 app.use(cors())
 app.use(bodyParser.json())
 
-const random = Math.floor(Math.random() * 10)
-console.log('random22:', random)
-
-/** Postgres Client Setup  */
-const { Pool } = require('pg')
-const pgClient = new Pool({
-  // user: keys.pgUser,
-  // host: keys.pgHost,
-  // database: keys.pgDatabase,
-  // password: keys.pgPassword,
-  // port: keys.pgPort,
-  connectionString: 'postgres://db_user:db_pass@postgres-cluster-ip-service.default.svc.cluster.local:15432/db_name',
-  connectionTimeoutMillis: 10000,
-})
-
-pgClient.on('error', () => console.log('Lost PG connection'))
-;(async () => {
-  try {
-    const ss = await pgClient.query('CREATE TABLE IF NOT EXISTS values (number INT)')
-    console.log('ss:', ss)
-  } catch (error) {
-    console.log('; ~ error:', error)
-  }
-})()
+const prisma = new PrismaClient()
+console.log('connecting to database...')
+prisma
+  .$connect()
+  .then(() => {
+    console.log('Connected to database')
+  })
+  .catch((error) => {
+    console.log('Error connecting to database', error)
+  })
 
 // /** Redis Client Setup  */
 // const redis = require('redis')
@@ -46,15 +33,24 @@ pgClient.on('error', () => console.log('Lost PG connection'))
 /** Express route handlers  */
 
 app.get('/', (req, res) => {
+  const random = Math.floor(Math.random() * 1000)
   console.log('app.get ~ random:', random)
   res.json({ message: 'Hi', random })
 })
 
-app.get('/values/all', async (req, res) => {
-  const values = await pgClient.query('SELECT * from values')
-  console.log('app.get ~ values:', values)
+app.get('/users/all', async (req, res) => {
+  console.log('app.get ~ users/all')
+  const users = await prisma.user.findMany()
+  res.json({ users })
+})
 
-  res.json({ values: 'all' })
+app.post('/users/create', async (req, res) => {
+  console.log('app.post ~ users/create')
+  const random = Math.floor(Math.random() * 1000)
+  const user = await prisma.user.create({
+    data: { email: `test-${random}@test.com`, name: `test-${random}` },
+  })
+  res.json({ user })
 })
 
 // app.get('/values/current', async (req, res) => {
@@ -77,6 +73,6 @@ app.get('/values/all', async (req, res) => {
 //   res.send({ working: true })
 // })
 
-app.listen(5000, (err) => {
-  console.log('Listening')
+app.listen(process.env.PORT || 3001, (err) => {
+  console.log('Listening on port', process.env.PORT || 3001)
 })

@@ -1,0 +1,12 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: db-config-map
+  # namespace: default
+data:
+  HOST: db-cluster-ip-service
+  # DB IP: 10.244.0.110
+  # DB Pod HOST: 10-244-0-110.default.pod.cluster.local
+  # DB Service HOST is: db-cluster-ip-service.default.svc.cluster.local
+  PORT: '5432'
+  DB: db_name

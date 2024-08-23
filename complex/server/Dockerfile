@@ -1,6 +1,8 @@
 FROM node:alpine
 WORKDIR "/app"
 COPY ./package.json ./
-RUN npm install
+COPY ./prisma ./prisma
+RUN yarn
+RUN ls -la
 COPY . .
-CMD ["npm", "run", "start"]
+CMD ["yarn", "start"]
