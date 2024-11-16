@@ -38,10 +38,27 @@ spec:
             - name: database-volume
               mountPath: /var/lib/postgresql/data
               subPath: postgres
+              # readOnly: true  # nếu như ta muốn chỉ cho phép read ko write
+          readinessProbe: # does not receive traffic through Kubernetes Services when not ready
+            exec:
+              command: ['sh', '-c', 'pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -q']
+            initialDelaySeconds: 15
+            timeoutSeconds: 2
+          livenessProbe: # restart when not ready
+            exec:
+              command: ['sh', '-c', 'psql -w -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT 1"']
+            initialDelaySeconds: 45
+            timeoutSeconds: 2
       volumes:
         - name: database-volume
           persistentVolumeClaim:
             claimName: db-pvc
+            # readOnly: true  # override readOnly ở volumeMounts
+      restartPolicy: Always
+#
+#
+#
+#
 # ---
 # apiVersion: apps/v1
 # kind: Deployment

@@ -2,8 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: be-deployment
+  labels:
+    app.kubernetes.io/name: be-deployment
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       component: be
@@ -13,10 +15,15 @@ spec:
         component: be
         test-key: test-label
     spec:
+      # securityContext:
+      #   runAsUser: 1001
+      #   runAsGroup: 1001
+      #   fsGroup: 1001
+      restartPolicy: Always
       containers:
         - name: client
-          image: complex-be
-          imagePullPolicy: Never
+          image: mh184/k8s:complex-be
+          imagePullPolicy: Always
           envFrom:
             - configMapRef:
                 name: db-config-map
@@ -29,6 +36,16 @@ spec:
           env:
             - name: DATABASE_URL
               value: postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?schema=public
+            # - name: APP_NAME
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: db-config-map
+            #       key: app_name
+            # - name: PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: db-config-map
+            #       key: PASSWORD
           resources:
             limits:
               cpu: 500m
@@ -36,11 +53,64 @@ spec:
             requests:
               cpu: 250m
               memory: 512Mi
+          livenessProbe: # restart when not ready
+            # dùng để đảm bảo app alive
+            # dùng cho trường hợp pod bị deadlock, không thể serve request nhưng vẫn running
+            httpGet:
+              path: /health/liveness
+              port: be-port
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 30
+            failureThreshold: 1
+          readinessProbe: # does not receive traffic through Kubernetes Services when not ready
+            # dùng để đảm bảo app ready để nhận traffic, vd như đã connect được với DB, đã migrate thành công, đã load xong config, ...
+            httpGet:
+              path: /health/readiness
+              port: be-port
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            successThreshold: 3
+          # startupProbe: # probe này sẽ chạy trước livenessProbe và readinessProbe
+            # có thể dùng initialDelaySeconds để thay thế
+            # thường dùng cho app khởi động lâu, khó predict thời gian khởi động
+          #   httpGet:
+          #     path: /healthz
+          #     port: be-port
+          #   failureThreshold: 30
+          #   periodSeconds: 10
           ports:
             # Chỉ để tài liệu hóa cấu hình của pod, các container trong pod vẫn
             # có thể giao tiếp với nhau mà không cần cấu hình này
-            - containerPort: 9999
-#
+            # Trick: dùng làm port variable để dùng lại ở nhiều chỗ khác => lúc này nên cấu hình đúng vì nó
+            # được dùng lại ở chỗ khác
+            - containerPort: 3000
+              name: be-port # phải unique trong pod => nên set là pod-port cho all deployment
+          # volumeMounts:
+          #   - name: config    # must match the Name of a Volume
+          #     mountPath: '/app/storage/introduction.txt'  # content của subPath sẽ được mount vào path này trong container
+          #     subPath: introduction.txt   # dùng path này trong volume
+          # nếu dùng subPath thì không có update "realtime" vào trong container khi apply ConfigMap mà phải restart lại
+          #     readOnly: true
+          #   - name: secret
+          #     mountPath: '/app/storage/secret.txt'
+          #     subPath: secret.txt
+          #     readOnly: true
+          # volumes:
+          #   # Volume with ConfigMap
+          #   - name: config
+          #     configMap:
+          #       name: myapp-config
+          #       items:
+          #         - key: 'introduction.txt' # phải là key in ConfigMap
+          #           path: 'introduction.txt'  # content của key sẽ được mount vào path này trong volume
+          #   # Volume with Secret
+          #   - name: secret
+          #     secret:
+          #       secretName: myapp-secret
+          #       items:
+          #         - key: secret.txt
+          #           path: secret.txt
 #
 #
 #

@@ -5,3 +5,7 @@ metadata:
   # namespace: default
 data:
   PORT: '3000'
+  app_name: be
+  PASSWORD: password
+  introduction.txt: |
+    This is to demo how to update Configmap

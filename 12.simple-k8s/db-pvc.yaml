@@ -6,7 +6,7 @@ metadata:
   # labels:
   #   app: db-pvc
 spec:
-  # storageClassName: rook-ceph-block
+  # storageClassName: rook-block
   accessModes:
     - ReadWriteOnce
   resources:
@@ -16,6 +16,7 @@ spec:
 #
 # accessModes
 # ReadWriteOnce   → Can be used by a single node
+#                   Khi dùng RWO, ở Deployment ta set spec.strategy.type = Recreate
 # ReadOnlyMany    → Multiple nodes can read from this
 # ReadWriteMany   → Can be read and written to by many nodes
 #
@@ -27,9 +28,36 @@ spec:
 # Retain    → The PV is not deleted when the PVC is deleted.
 #             The PV is not automatically deleted when the PVC is deleted.
 #             The PV will have Release status, and the other PVCs can't use it.
-# Recycle   → The PV is recycled (emptied) when the PVC is deleted.
+# Recycle(deprecated)   → The PV is recycled (emptied) when the PVC is deleted.
 #             The PV is not automatically deleted when the PVC is deleted.
 #             The PV will have Available status, and the other PVCs can use it.
 # Delete    → The PV is automatically deleted when the PVC is deleted.
 #
+# Khi Provisioner auto tạo PV thì cần kiểm tra lại ReclaimPolicy của PV
+# VD: PV cho DB thì sẽ là Retain
+#     $ kubectl patch pv pvc-xxxxx -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+#
 #########################################
+#
+# StorageClass
+# Như đã biết, pvc tiêu thụ pv
+# Nhưng pv cần phải được tạo ra từ trước
+# StorageClass giúp tạo ra pv một cách tự động
+# 
+# Example: gce StorageClass
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: fast
+# provisioner: kubernetes.io/gce-pd # use gce-pd provisioner
+# parameters:
+#   type: pd-ssd
+#   zone: europe-west1-b
+#
+# Với minikube, cần enable add on default-storageclass
+# $ minikube addons enable default-storageclass
+#
+# Nếu config     storageClassName: ""
+# => không sử dụng storageClassName để tự động tạo PV mà ta sẽ xài PV có sẵn
+# => muốn xài được storage class thì ta cần provisioner, thì hiện tại chỉ có cloud là hỗ trợ sẵn provisioner thôi, nếu bạn cài trên data center thông thường thì không có provisioner sẵn cho bạn để bạn xài chức năng dynamic provisioning được.
+#

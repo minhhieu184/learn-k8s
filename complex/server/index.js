@@ -10,16 +10,16 @@ const app = express()
 app.use(cors())
 app.use(bodyParser.json())
 
-const prisma = new PrismaClient()
-console.log('connecting to database...')
-prisma
-  .$connect()
-  .then(() => {
-    console.log('Connected to database')
-  })
-  .catch((error) => {
-    console.log('Error connecting to database', error)
-  })
+// const prisma = new PrismaClient()
+// console.log('connecting to database...')
+// prisma
+//   .$connect()
+//   .then(() => {
+//     console.log('Connected to database')
+//   })
+//   .catch((error) => {
+//     console.log('Error connecting to database', error)
+//   })
 
 // /** Redis Client Setup  */
 // const redis = require('redis')
@@ -38,19 +38,28 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hi', random })
 })
 
-app.get('/users/all', async (req, res) => {
-  console.log('app.get ~ users/all')
-  const users = await prisma.user.findMany()
-  res.json({ users })
+// app.get('/users/all', async (req, res) => {
+//   console.log('app.get ~ users/all')
+//   const users = await prisma.user.findMany()
+//   res.json({ users })
+// })
+
+// app.post('/users/create', async (req, res) => {
+//   console.log('app.post ~ users/create')
+//   const random = Math.floor(Math.random() * 1000)
+//   const user = await prisma.user.create({
+//     data: { email: `test-${random}@test.com`, name: `test-${random}` },
+//   })
+//   res.json({ user })
+// })
+
+console.log('starttttttt', Math.floor(Math.random() * 1000))
+app.get('/health/liveness', (req, res) => {
+  res.send('OK')
 })
 
-app.post('/users/create', async (req, res) => {
-  console.log('app.post ~ users/create')
-  const random = Math.floor(Math.random() * 1000)
-  const user = await prisma.user.create({
-    data: { email: `test-${random}@test.com`, name: `test-${random}` },
-  })
-  res.json({ user })
+app.get('/health/readiness', (req, res) => {
+  res.send('OK')
 })
 
 // app.get('/values/current', async (req, res) => {

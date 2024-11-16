@@ -1,17 +1,50 @@
-# https://kubernetes.io/docs/concepts/services-networking/ingress/#the-ingress-resource
-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-service
   annotations:
+    # kubernetes.io/ingress.class: 'nginx'   # deprecated, use spec.ingressClassName
     nginx.ingress.kubernetes.io/rewrite-target: /$2
+    cert-manager.io/issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/proxy-body-size: 1G
 spec:
-  ingressClassName: nginx
+  tls:
+    - hosts:
+        - 9009b0.learnk8s.jamesisme.com
+        - mdtk8s.mhits.fun
+        # - jamesisme.com
+        # - www.jamesisme.com
+        # - www2.jamesisme.com
+      secretName: todo-tls
+  ingressClassName: nginx # Nếu bạn không muốn dùng annotations kubernetes.io/ingress.class
   rules:
-    # - host: foo.bar.com
-    - http:
+    - host: 9009b0.learnk8s.jamesisme.com
+      http:
         paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: be-cluster-ip-service # Should change to FE service (be-cluster-ip-service is for test)
+                port:
+                  number: 3000
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: be-cluster-ip-service
+                port:
+                  number: 3000
+    - host: mdtk8s.mhits.fun
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: be-cluster-ip-service # Should change to FE service (be-cluster-ip-service is for test)
+                port:
+                  number: 3000
           - path: /api(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
