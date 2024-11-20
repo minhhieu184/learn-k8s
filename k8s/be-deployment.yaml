@@ -9,6 +9,11 @@ spec:
   selector:
     matchLabels:
       component: be
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxSurge: 1
+  #     maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -22,8 +27,10 @@ spec:
       restartPolicy: Always
       containers:
         - name: client
-          image: mh184/k8s:complex-be
-          imagePullPolicy: Always
+          # image: mh184/k8s:complex-be
+          # imagePullPolicy: Always
+          image: complex-be
+          imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
                 name: db-config-map
@@ -46,6 +53,8 @@ spec:
             #     secretKeyRef:
             #       name: db-config-map
             #       key: PASSWORD
+          # command:
+          #   - ss
           resources:
             limits:
               cpu: 500m
@@ -72,8 +81,8 @@ spec:
             timeoutSeconds: 2
             successThreshold: 3
           # startupProbe: # probe này sẽ chạy trước livenessProbe và readinessProbe
-            # có thể dùng initialDelaySeconds để thay thế
-            # thường dùng cho app khởi động lâu, khó predict thời gian khởi động
+          # có thể dùng initialDelaySeconds để thay thế
+          # thường dùng cho app khởi động lâu, khó predict thời gian khởi động
           #   httpGet:
           #     path: /healthz
           #     port: be-port
@@ -96,21 +105,21 @@ spec:
           #     mountPath: '/app/storage/secret.txt'
           #     subPath: secret.txt
           #     readOnly: true
-          # volumes:
-          #   # Volume with ConfigMap
-          #   - name: config
-          #     configMap:
-          #       name: myapp-config
-          #       items:
-          #         - key: 'introduction.txt' # phải là key in ConfigMap
-          #           path: 'introduction.txt'  # content của key sẽ được mount vào path này trong volume
-          #   # Volume with Secret
-          #   - name: secret
-          #     secret:
-          #       secretName: myapp-secret
-          #       items:
-          #         - key: secret.txt
-          #           path: secret.txt
+      volumes:
+        # Volume with ConfigMap
+        - name: config
+          configMap:
+            name: myapp-config
+            items:
+              - key: 'introduction.txt' # phải là key in ConfigMap
+                path: 'introduction.txt' # content của key sẽ được mount vào path này trong volume
+        # Volume with Secret
+    #   - name: secret
+    #     secret:
+    #       secretName: myapp-secret
+    #       items:
+    #         - key: secret.txt
+    #           path: secret.txt
 #
 #
 #

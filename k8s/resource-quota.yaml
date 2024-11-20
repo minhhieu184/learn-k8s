@@ -1,0 +1,15 @@
+# Giới hạn tổng tài nguyên trong namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: quota-name
+  namespace: project-1
+spec:
+  hard:
+    requests.cpu: '1'
+    requests.memory: 1Gi
+    limits.cpu: '2'
+    limits.memory: 2Gi
+    pods: '2'
+    persistentvolumeclaims: '5'
+    requests.storage: 5Gi

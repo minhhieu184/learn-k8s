@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: be-cluster-ip-service
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     component: be
     # app: be-cluster-ip-service
@@ -12,12 +12,14 @@ spec:
   #   clientIP:
   #     timeoutSeconds: 10800
   ports:
-    # - name: be-cluster-ip-service
+    # - port: 3000
+    #   targetPort: be-port
+    #   name: be-cluster-ip-service
     #   protocol: TCP
-    - port: 3000
-      targetPort: be-port
+    #
     # If you set the `spec.type` field to `NodePort` and you want a specific port number,
     # you can specify a value in the `spec.ports[*].nodePort` field.
-    # - nodePort: 31515
-    #   port: 3000
-    #   targetPort: be-port
+    - nodePort: 31515
+      port: 3000
+      # targetPort: be-port
+      targetPort: 3000
