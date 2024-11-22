@@ -43,7 +43,7 @@ spec:
 # Như đã biết, pvc tiêu thụ pv
 # Nhưng pv cần phải được tạo ra từ trước
 # StorageClass giúp tạo ra pv một cách tự động
-# 
+#
 # Example: gce StorageClass
 # apiVersion: storage.k8s.io/v1
 # kind: StorageClass
@@ -61,3 +61,14 @@ spec:
 # => không sử dụng storageClassName để tự động tạo PV mà ta sẽ xài PV có sẵn
 # => muốn xài được storage class thì ta cần provisioner, thì hiện tại chỉ có cloud là hỗ trợ sẵn provisioner thôi, nếu bạn cài trên data center thông thường thì không có provisioner sẵn cho bạn để bạn xài chức năng dynamic provisioning được.
 #
+
+# ---
+# kind: StorageClass
+# apiVersion: storage.k8s.io/v1
+# metadata:
+#   name: efs-sc
+# provisioner: efs.csi.aws.com
+# parameters:
+#   provisioningMode: efs-ap
+#   fileSystemId: fs-026bb4e33bea77857
+#   directoryPerms: '700'

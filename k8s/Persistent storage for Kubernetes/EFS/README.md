@@ -1,0 +1,1 @@
+[REFERENCE](https://aws.amazon.com/vi/blogs/storage/persistent-storage-for-kubernetes/)
