@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=./values.schema.json
+
+architecture: replication
+
+auth:
+  # enabled: true
+  password: devopseduvn
+
+master:
+  persistence:
+    enabled: true
+    existingClaim: demo-pvc
+    size: 3Gi
+
+replica:
+  replicaCount: 3
+  persistence:
+    enabled: true
+    existingClaim: demo-pvc
+    size: 3Gi
+
+sentinel:
+  enabled: true
+  # replicas: 3
